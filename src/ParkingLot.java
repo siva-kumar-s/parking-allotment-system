@@ -91,6 +91,10 @@ public class ParkingLot {
             System.out.println("No Vehicles are Parked in the Parking Lot. Parking Lot is Empty");
             return;
         }
+        if(!particularColourWithVehicle.containsKey(colour.toLowerCase())) {
+            System.out.println("No Vehicles with colour " + colour +" Parked in the Parking Lot.");
+            return;
+        }
         List<Vehicle> parkedVehicles = particularColourWithVehicle.get(colour.toLowerCase());
         if(parkedVehicles.isEmpty()) {
             System.out.println("No " + colour +" colour vehicles are Parked in the Parking Lot.");
@@ -105,6 +109,10 @@ public class ParkingLot {
     public void slotNumberForVehiclesWithParticularColor(String colour) {
         if(availableSlots.size() == parkingCapacity) {
             System.out.println("No Vehicles are Parked in the Parking Lot, Parking Lot is Empty.");
+            return;
+        }
+        if(!particularColourWithVehicle.containsKey(colour.toLowerCase())) {
+            System.out.println("No Vehicles with colour " + colour +" Parked in the Parking Lot.");
             return;
         }
         List<Vehicle> parkedVehicles = particularColourWithVehicle.get(colour.toLowerCase());

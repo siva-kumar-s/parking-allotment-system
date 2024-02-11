@@ -156,7 +156,7 @@ public class Main {
 
     private static void handleException(Exception e) {
         if (e instanceof NumberFormatException) {
-            System.out.println("Command needed a Positive Number for Parking Size or Slot No Not a Character");
+            System.out.println("Command needed a Positive Number for Parking Size and Slot No Not a Character");
         } else {
             System.out.println("Error Occurred Please Restart the System. \n Error Message: " + e.getMessage());
         }

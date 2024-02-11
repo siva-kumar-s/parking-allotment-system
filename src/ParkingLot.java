@@ -59,6 +59,10 @@ public class ParkingLot {
             System.out.println("Slot No: " + slot + "is already free.");
             return;
         }
+        if(!slotNoWithCar.containsKey(slot)) {
+            System.out.println("Slot No: " + slot + " is not exists in the Parking Lot.");
+            return;
+        }
         Vehicle parkedVehicle =  slotNoWithCar.get(slot);
         particularColourWithVehicle.get(parkedVehicle.getColour()).remove(parkedVehicle);
         regNumWithSlotNum.remove(parkedVehicle.getRegNumber());
@@ -68,6 +72,10 @@ public class ParkingLot {
     }
 
     public void status() {
+        if(availableSlots.size() == parkingCapacity) {
+            System.out.println("No Vehicles are Parked in the Parking Lot, Parking Lot is Empty.");
+            return;
+        }
         System.out.println("Slot No. --  Registration No -- Colour");
         for (Map.Entry<Integer, Vehicle> entry : slotNoWithCar.entrySet()) {
             int slot = entry.getKey();
@@ -78,23 +86,43 @@ public class ParkingLot {
         }
     }
 
-    public void registrationNumberForVehiclesWithColor(String color) {
-        List<Vehicle> parkedVehicles = particularColourWithVehicle.get(color.toLowerCase());
-        System.out.println("Registration Number of Vehicles having Color: " + color);
+    public void registrationNumberForVehiclesWithColor(String colour) {
+        if(availableSlots.size() == parkingCapacity) {
+            System.out.println("No Vehicles are Parked in the Parking Lot. Parking Lot is Empty");
+            return;
+        }
+        List<Vehicle> parkedVehicles = particularColourWithVehicle.get(colour.toLowerCase());
+        if(parkedVehicles.isEmpty()) {
+            System.out.println("No " + colour +" colour vehicles are Parked in the Parking Lot.");
+            return;
+        }
+        System.out.println("Registration Number of Vehicles having Color: " + colour);
         for(Vehicle vehicle : parkedVehicles) {
             System.out.println(vehicle.getRegNumber());
         }
     }
     
-    public void slotNumberForVehiclesWithParticularColor(String color) {
-        List<Vehicle> parkedVehicles = particularColourWithVehicle.get(color.toLowerCase());
-        System.out.println("Slot No of Vehicles having Color: " + color);
+    public void slotNumberForVehiclesWithParticularColor(String colour) {
+        if(availableSlots.size() == parkingCapacity) {
+            System.out.println("No Vehicles are Parked in the Parking Lot, Parking Lot is Empty.");
+            return;
+        }
+        List<Vehicle> parkedVehicles = particularColourWithVehicle.get(colour.toLowerCase());
+        if(parkedVehicles.isEmpty()) {
+            System.out.println("No " + colour +" colour vehicles are Parked in the Parking Lot.");
+            return;
+        }
+        System.out.println("Slot No of Vehicles having Color: " + colour);
         for(Vehicle vehicle : parkedVehicles) {
             System.out.println("Slot No: " + vehicle.getSlotNo());
         }
     }
 
     public void getSlotNumberOfVehicleForRegistrationNumber(String regNum) {
+        if(availableSlots.size() == parkingCapacity) {
+            System.out.println("No Vehicles are Parked in the Parking Lot, Parking Lot is Empty.");
+            return;
+        }
         if(!regNumWithSlotNum.containsKey(regNum)) {
             System.out.println("No Vehicle Parked With Register Number: " + regNum);
         }

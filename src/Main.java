@@ -2,11 +2,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
         System.out.println("Welcome To Parking Allotment System");
         printSupportedCommands();
         Scanner scanner = new Scanner(System.in);
         ParkingLot parkingLot = null;
+
         while (true) {
             try {
                 System.out.print("Input: ");
@@ -15,123 +15,109 @@ public class Main {
                 String command = tokens[0];
                 switch (command) {
                     case "create_parking_lot":
-                        if(isParkingLotExists(parkingLot)) {
-                            break;
-                        }
-                        if (tokens.length != 2) {
-                            System.out.println("Parking lot Size is Missing or Multiple Inputs Given.");
-                            break;
-                        }
-                        int capacity = Integer.parseInt(tokens[1]);
-                        if(capacity <= 0) {
-                            System.out.println("Parking lot Size is Missing or Multiple Inputs Given.");
-                            return;
-                        }
-                        parkingLot = new ParkingLot(capacity);
-                        System.out.println("Created a parking lot with " + capacity + " slots");
+                        parkingLot = createParkingLot(tokens, parkingLot);
                         break;
                     case "park":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 3) {
-                            System.out.println("Missing Inputs either Registration Number or Color or More Inputs Given.");
-                            break;
-                        }
-                        parkingLot.park(tokens[1], tokens[2].toLowerCase());
+                        parkVehicle(tokens, parkingLot);
                         break;
                     case "leave":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 2) {
-                            System.out.println("leave command needs one Input (Slot No) is Missing or Multiple Inputs Given.");
-                            break;
-                        }
-                        int slot = Integer.parseInt(tokens[1]);
-                        parkingLot.leave(slot);
+                        leaveParking(tokens, parkingLot);
                         break;
                     case "status":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 1) {
-                            System.out.println("Status Command expects No Inputs, Multiple Inputs Given.");
-                            break;
-                        }
-                        parkingLot.status();
+                        getStatus(parkingLot);
                         break;
                     case "registration_numbers_for_cars_with_colour":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 2) {
-                            System.out.println("Input Color is Missing or Multiple Inputs Given.");
-                            break;
-                        }
-                        parkingLot.registrationNumberForVehiclesWithColor(tokens[1]);
+                        getRegistrationNumbersByColor(tokens, parkingLot);
                         break;
                     case "slot_number_for_registration_number":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 2) {
-                            System.out.println("Input RegisterNumber is Missing or Multiple Inputs Given.");
-                            break;
-                        }
-                        parkingLot.getSlotNumberOfVehicleForRegistrationNumber(tokens[1]);
+                        getSlotNumberByRegistration(tokens, parkingLot);
                         break;
                     case "slot_numbers_for_cars_with_colour":
-                        if (parkingLot == null) {
-                            System.out.println("Please create parking lot first");
-                            break;
-                        }
-                        if (tokens.length != 2) {
-                            System.out.println("Input Color is Missing or Multiple Inputs Given.");
-                            break;
-                        }
-                        parkingLot.slotNumberForVehiclesWithParticularColor(tokens[1]);
+                        getSlotNumbersByColor(tokens, parkingLot);
                         break;
                     case "exit":
-                        if (tokens.length != 1) {
-                            System.out.println("exit expect no Inputs, Multiple Inputs Given.");
-                            break;
-                        }
-                        System.out.println("Exiting...");
-                        scanner.close();
-                        System.exit(0);
+                        exitSystem(scanner);
+                        break;
                     default:
                         System.out.println("Invalid command.");
-                        System.out.println("Please Enter Valid Command.");
                         printSupportedCommands();
                 }
             } catch (Exception e) {
-                if (e instanceof NumberFormatException) {
-                    System.out.println("Command needed a Positive Number for Parking Size or Slot No Not a String");
-                }
-                else {
-                    System.out.println("Error Occurred Please Restart the System. \n Error Message: " + e.getMessage());
-                }
-//            e.printStackTrace();
+                handleException(e);
             }
         }
     }
 
-    private static boolean isInvalidArgs(String[] tokens, int len) {
-        boolean isInvalid = false;
-        if (tokens.length != 2) {
-            System.out.println("Parking lot Size is Missing or Multiple Inputs Given.");
-            isInvalid = true;
+    private static ParkingLot createParkingLot(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotExists(parkingLot) || isNotValidToken(tokens, 2, "Parking lot Size is Missing or Multiple Inputs Given.")) {
+            return null;
         }
-        return isInvalid;
+        int capacity = Integer.parseInt(tokens[1]);
+        if (isNegative(capacity)) return null;
+        System.out.println("Created a parking lot with " + capacity + " slots");
+        return new ParkingLot(capacity);
     }
 
-    public static void printSupportedCommands() {
+    private static void parkVehicle(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot) || isNotValidToken(tokens, 3, "Missing Inputs either Registration Number or Color or More Inputs Given.")) {
+            return;
+        }
+        parkingLot.park(tokens[1], tokens[2].toLowerCase());
+    }
+
+    private static void leaveParking(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot) || isNotValidToken(tokens, 2, "leave command needs one Input (Slot No) is Missing or Multiple Inputs Given.")) {
+            return;
+        }
+        int slot = Integer.parseInt(tokens[1]);
+        if (isNegative(slot)) return;
+        parkingLot.leave(slot);
+    }
+
+    private static void getStatus(ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot)) {
+            return;
+        }
+        parkingLot.status();
+    }
+
+    private static void getRegistrationNumbersByColor(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot) || isNotValidToken(tokens, 2, "Input Color is Missing or Multiple Inputs Given.")) {
+            return;
+        }
+        parkingLot.registrationNumberForVehiclesWithColor(tokens[1]);
+    }
+
+    private static void getSlotNumberByRegistration(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot) || isNotValidToken(tokens, 2, "Input RegisterNumber is Missing or Multiple Inputs Given.")) {
+            return;
+        }
+        parkingLot.getSlotNumberOfVehicleForRegistrationNumber(tokens[1]);
+    }
+
+    private static void getSlotNumbersByColor(String[] tokens, ParkingLot parkingLot) {
+        if (isParkingLotNotExists(parkingLot) || isNotValidToken(tokens, 2, "Input Color is Missing or Multiple Inputs Given.")) {
+            return;
+        }
+        parkingLot.slotNumberForVehiclesWithParticularColor(tokens[1]);
+    }
+
+    private static void exitSystem(Scanner scanner) {
+        System.out.println("Exiting...");
+        scanner.close();
+        System.out.println("Thank You!!");
+        System.exit(0);
+    }
+
+    private static boolean isNegative(int capacity) {
+        if (capacity <= 0) {
+            System.out.println("Parking lot Size Need to be Positive and Non Zero.");
+            return true;
+        }
+        return false;
+    }
+
+    private static void printSupportedCommands() {
         System.out.println("""
                 Supported Commands with explanation:\s
                 1. create_parking_lot:  create_parking_lot 6 -> (6) Capacity of the Parking Lot.
@@ -141,15 +127,38 @@ public class Main {
                 5. registration_numbers_for_cars_with_colour White: (colour) print all vehicle register number with (colour)
                 6. slot_numbers_for_cars_with_colour White: (color) print all vehicle slotNo has a colour of (color)
                 7. slot_number_for_registration_number KA-01-HH-7777: (regNum) print the slotNo of the vehicle with register Number
-                8. exit: exit from the System."""
-        );
+                8. exit: exit""");
     }
 
-    public static boolean isParkingLotExists(ParkingLot parkingLot) {
-        if (parkingLot != null) {
-            System.out.println("Parking Lot is Already Created");
+    private static boolean isParkingLotNotExists(ParkingLot parkingLot) {
+        if (parkingLot == null) {
+            System.out.println("Parking Lot is Not Created.");
             return true;
         }
         return false;
+    }
+
+    private static boolean isParkingLotExists(ParkingLot parkingLot) {
+        if (parkingLot != null) {
+            System.out.println("Parking Lot is Already Created.");
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isNotValidToken(String[] tokens, int len, String message) {
+        if (tokens.length != len) {
+            System.out.println(message);
+            return true;
+        }
+        return false;
+    }
+
+    private static void handleException(Exception e) {
+        if (e instanceof NumberFormatException) {
+            System.out.println("Command needed a Positive Number for Parking Size or Slot No Not a Character");
+        } else {
+            System.out.println("Error Occurred Please Restart the System. \n Error Message: " + e.getMessage());
+        }
     }
 }
